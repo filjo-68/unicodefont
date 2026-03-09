@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f0c07" />
+  <title>Luxury Font Generator PWA</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <style>
+    :root {
+      --bg: #0b0907;
+      --bg-2: #15110c;
+      --card: rgba(20, 16, 12, 0.92);
+      --card-2: rgba(27, 21, 15, 0.96);
+      --text: #f6f0e6;
+      --muted: #b6a893;
+      --gold: #d4af6a;
+      --gold-2: #8f6b2e;
+      --gold-soft: rgba(212, 175, 106, 0.18);
+      --border: rgba(212, 175, 106, 0.24);
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.38);
+      --ok: #8fd19e;
+      --warn: #f0c96b;
+      --low: #e98a7a;
+    }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(212,175,106,.09), transparent 28%),
+        linear-gradient(180deg, #090705 0%, #100d09 45%, #0c0907 100%);
+    }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 28px; }
+    .hero {
+      display: grid; gap: 14px; margin-bottom: 22px;
+      padding: 24px; border-radius: 28px; background: linear-gradient(180deg, rgba(23,18,13,.94), rgba(14,11,8,.96));
+      border: 1px solid var(--border); box-shadow: var(--shadow);
+    }
+    h1 { margin: 0; font-size: clamp(30px, 4.5vw, 48px); line-height: 1.02; letter-spacing: -0.03em; }
+    h2 { margin: 0 0 12px; font-size: 18px; }
+    .sub { margin: 0; color: var(--muted); max-width: 900px; }
+    .pill {
+      width: fit-content; display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 14px; border-radius: 999px; border: 1px solid var(--border);
+      background: rgba(212,175,106,.06); color: var(--muted); font-size: 13px;
+    }
+    .accent-dot { color: var(--gold); }
+    .grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: linear-gradient(180deg, var(--card), var(--card-2));
+      border: 1px solid var(--border); border-radius: 24px; padding: 20px;
+      box-shadow: var(--shadow); backdrop-filter: blur(10px);
+    }
+    .stack { display: grid; gap: 12px; }
+    label { display: block; margin-bottom: 8px; font-weight: 700; }
+    input, textarea, select, button {
+      font: inherit;
+    }
+    input, textarea, select {
+      width: 100%; padding: 14px 15px; border-radius: 16px; outline: none;
+      border: 1px solid rgba(212,175,106,.18); background: rgba(8,6,5,.78); color: var(--text);
+      transition: .18s ease;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    input::placeholder, textarea::placeholder { color: #8c816f; }
+    input:focus, textarea:focus, select:focus {
+      border-color: rgba(212,175,106,.55);
+      box-shadow: 0 0 0 4px var(--gold-soft);
+    }
+    button {
+      padding: 12px 14px; border-radius: 14px; cursor: pointer;
+      border: 1px solid rgba(212,175,106,.22); background: rgba(12,9,7,.88); color: var(--text);
+      transition: .18s ease; box-shadow: none;
+    }
+    button:hover { transform: translateY(-1px); border-color: rgba(212,175,106,.45); }
+    button.primary {
+      border: none; color: #120f0a; font-weight: 800;
+      background: linear-gradient(135deg, #e5c27c, #b08238);
+      box-shadow: 0 8px 22px rgba(176,130,56,.28);
+    }
+    button.ghost { background: rgba(20,15,11,.55); }
+    .toolbar, .row, .filters, .tabs { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tabs .tab.active {
+      border-color: rgba(212,175,106,.7);
+      background: linear-gradient(180deg, rgba(212,175,106,.16), rgba(212,175,106,.05));
+      box-shadow: inset 0 0 0 1px rgba(212,175,106,.12);
+    }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    @media (max-width: 760px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+    .stat {
+      background: rgba(12,9,7,.7); border: 1px solid rgba(212,175,106,.15);
+      border-radius: 18px; padding: 14px;
+    }
+    .stat b { display:block; font-size: 20px; margin-bottom: 4px; }
+    .note, .footer { color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .footer { margin-top: 4px; }
+    .hidden { display: none; }
+    .section-head { display: flex; justify-content: space-between; gap: 12px; align-items: end; flex-wrap: wrap; }
+    .style-list, .template-list {
+      display: grid; gap: 12px; margin-top: 12px; max-height: 72vh; overflow: auto; padding-right: 4px;
+    }
+    .style-item, .template-item {
+      border: 1px solid rgba(212,175,106,.16); border-radius: 18px; padding: 16px;
+      background: linear-gradient(180deg, rgba(10,8,6,.88), rgba(17,13,10,.96));
+    }
+    .style-meta { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .style-item h3, .template-item h3 { margin: 0 0 8px; font-size: 14px; color: var(--muted); font-weight: 700; }
+    .chips { display:flex; gap:8px; flex-wrap:wrap; }
+    .chip {
+      font-size: 12px; padding: 6px 10px; border-radius: 999px; border: 1px solid rgba(212,175,106,.14);
+      background: rgba(212,175,106,.05); color: var(--muted);
+    }
+    .out, .template-out { white-space: pre-wrap; word-break: break-word; line-height: 1.38; }
+    .out { font-size: clamp(18px, 2.4vw, 26px); margin: 8px 0 12px; }
+    .template-out { font-size: 16px; margin-bottom: 10px; }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .low { color: var(--low); }
+    .split-2 { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 640px) { .split-2 { grid-template-columns: 1fr; } }
+    .mini { padding: 10px 12px; font-size: 14px; }
+    .countline { color: var(--muted); font-size: 13px; }
+    .results-card { margin-top: 18px; }
+    .results-toolbar { display:grid; gap: 12px; }
+    @media (min-width: 880px) { .results-toolbar { grid-template-columns: 1.25fr .75fr; align-items:end; } }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="pill"><span class="accent-dot">●</span> Installable premium PWA with offline support</div>
+      <h1>Luxury Stylish Text Generator</h1>
+      <p class="sub">Generate stylized Unicode text for bios, Instagram display names, Facebook bio lines, captions, and branding. Includes 95 styles, search, categories, readability labels, and ready-made copy templates.</p>
+      <div class="tabs" id="modeTabs">
+        <button class="tab active" data-mode="general">General Generator</button>
+        <button class="tab" data-mode="fb">Facebook Bio</button>
+        <button class="tab" data-mode="ig">Instagram Names</button>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card stack">
+        <div>
+          <label for="input">Main text</label>
+          <input id="input" placeholder="Write the text here." value="text here" />
+        </div>
+
+        <div id="generalFields">
+          <label for="longInput">Extra line</label>
+          <textarea id="longInput" placeholder="Add a subtitle, tagline, role, or category."></textarea>
+        </div>
+
+        <div id="fbFields" class="hidden stack">
+          <div>
+            <label for="fbRole">Role / niche</label>
+            <input id="fbRole" placeholder="Example: Beauty • Lifestyle • Travel" value="Beauty • Lifestyle" />
+          </div>
+          <div>
+            <label for="fbTagline">Short tagline</label>
+            <input id="fbTagline" placeholder="Example: elegant energy only" value="elegant energy only" />
+          </div>
+          <div>
+            <label for="fbLink">Link / contact line</label>
+            <input id="fbLink" placeholder="Example: DM for collabs" value="DM for collabs" />
+          </div>
+        </div>
+
+        <div id="igFields" class="hidden stack">
+          <div class="split-2">
+            <div>
+              <label for="igPrefix">Prefix</label>
+              <input id="igPrefix" placeholder="Example: the / real / its" value="the" />
+            </div>
+            <div>
+              <label for="igSuffix">Suffix</label>
+              <input id="igSuffix" placeholder="Example: official / studio / vibes" value="official" />
+            </div>
+          </div>
+          <div>
+            <label for="igSeparator">Separator</label>
+            <select id="igSeparator">
+              <option value=".">Dot</option>
+              <option value="_">Underscore</option>
+              <option value="">No separator</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button class="primary" id="copyAll">Copy selected style</button>
+          <button class="ghost" id="clearBtn">Clear</button>
+          <select id="favoriteStyle" aria-label="Selected style"></select>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><b id="charCount">0</b><span class="note">characters</span></div>
+          <div class="stat"><b id="safeScore">—</b><span class="note">readability</span></div>
+          <div class="stat"><b id="currentMode">General</b><span class="note">active mode</span></div>
+          <div class="stat"><b id="styleCount">0</b><span class="note">visible styles</span></div>
+        </div>
+
+        <p class="note">Facebook usually blocks decorative Unicode in the legal profile name field. Use the Facebook Bio mode for intros, captions, bios, and formatted profile text.</p>
+        <div class="footer">Best practice: use highly readable styles for display names and save decorative styles for bios, stories, covers, and graphics.</div>
+      </div>
+
+      <div class="card stack">
+        <div>
+          <label>Install</label>
+          <div class="row">
+            <button id="installBtn" class="primary" hidden>Install app</button>
+            <button id="shareBtn">Share / export</button>
+          </div>
+          <p class="note">Android and Chrome: tap Install app. iPhone and iPad: Share → Add to Home Screen.</p>
+          <p class="note">The app works offline after the first successful load.</p>
+        </div>
+
+        <div>
+          <h2>Ready-made templates</h2>
+          <div class="template-list" id="templates"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card results-card">
+      <div class="results-toolbar">
+        <div>
+          <label for="searchStyles">Search styles</label>
+          <input id="searchStyles" placeholder="Search by style name or category." />
+        </div>
+        <div>
+          <label for="categoryFilter">Category</label>
+          <select id="categoryFilter">
+            <option value="all">All categories</option>
+          </select>
+        </div>
+      </div>
+      <div class="section-head" style="margin-top:12px;">
+        <div class="filters" id="quickFilters"></div>
+        <div class="countline" id="resultsCount">0 styles shown</div>
+      </div>
+      <div class="style-list" id="results"></div>
+    </section>
+  </main>
+
+  <script>
+    const alphabetUpper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const alphabetLower = 'abcdefghijklmnopqrstuvwxyz';
+    const digits = '0123456789';
+
+    const baseMaps = {
+      plain: { upper: alphabetUpper, lower: alphabetLower },
+      sansBold: { upper: '𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭', lower: '𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇' },
+      sansItalic: { upper: '𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡', lower: '𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻' },
+      sansBoldItalic: { upper: '𝘼𝘽𝘾𝘿𝙀𝙁𝙂𝙃𝙄𝙅𝙆𝙇𝙈𝙉𝙊𝙋𝙌𝙍𝙎𝙏𝙐𝙑𝙒𝙓𝙔𝙕', lower: '𝙖𝙗𝙘𝙙𝙚𝙛𝙜𝙝𝙞𝙟𝙠𝙡𝙢𝙣𝙤𝙥𝙦𝙧𝙨𝙩𝙪𝙫𝙬𝙭𝙮𝙯' },
+      serifBold: { upper: '𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙', lower: '𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳' },
+      serifItalic: { upper: '𝐴𝐵𝐶𝐷𝐸𝐹𝐺𝐻𝐼𝐽𝐾𝐿𝑀𝑁𝑂𝑃𝑄𝑅𝑆𝑇𝑈𝑉𝑊𝑋𝑌𝑍', lower: '𝑎𝑏𝑐𝑑𝑒𝑓𝑔𝒽𝑖𝑗𝑘𝑙𝑚𝑛𝑜𝑝𝑞𝑟𝑠𝑡𝑢𝑣𝑤𝑥𝑦𝑧' },
+      serifBoldItalic: { upper: '𝑨𝑩𝑪𝑫𝑬𝑭𝑮𝑯𝑰𝑱𝑲𝑳𝑴𝑵𝑶𝑷𝑸𝑹𝑺𝑻𝑼𝑽𝑾𝑿𝒀𝒁', lower: '𝒂𝒃𝒄𝒅𝒆𝒇𝒈𝒉𝒊𝒋𝒌𝒍𝒎𝒏𝒐𝒑𝒒𝒓𝒔𝒕𝒖𝒗𝒘𝒙𝒚𝒛' },
+      script: { upper: '𝒜𝐵𝒞𝒟𝐸𝐹𝒢𝐻𝐼𝒥𝒦𝐿𝑀𝒩𝒪𝒫𝒬𝑅𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵', lower: '𝒶𝒷𝒸𝒹𝑒𝒻𝑔𝒽𝒾𝒿𝓀𝓁𝓂𝓃𝑜𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏' },
+      boldScript: { upper: '𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩', lower: '𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃' },
+      fraktur: { upper: '𝔄𝔅ℭ𝔇𝔈𝔉𝔊ℌℑ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜ℨ', lower: '𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷' },
+      boldFraktur: { upper: '𝕬𝕭𝕮𝕯𝕰𝕱𝕲𝕳𝕴𝕵𝕶𝕷𝕸𝕹𝕺𝕻𝕼𝕽𝕾𝕿𝖀𝖁𝖂𝖃𝖄𝖅', lower: '𝖆𝖇𝖈𝖉𝖊𝖋𝖌𝖍𝖎𝖏𝖐𝖑𝖒𝖓𝖔𝖕𝖖𝖗𝖘𝖙𝖚𝖛𝖜𝖝𝖞𝖟' },
+      doubleStruck: { upper: '𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ', lower: '𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫' },
+      monospace: { upper: '𝙰𝙱𝙲𝙳𝙴𝙵𝙶𝙷𝙸𝙹𝙺𝙻𝙼𝙽𝙾𝙿𝚀𝚁𝚂𝚃𝚄𝚅𝚆𝚇𝚈𝚉', lower: '𝚊𝚋𝚌𝚍𝚎𝚏𝚐𝚑𝚒𝚓𝚔𝚕𝚖𝚗𝚘𝚙𝚚𝚛𝚜𝚝𝚞𝚟𝚠𝚡𝚢𝚣' },
+      fullwidth: { upper: 'ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ', lower: 'ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ' },
+      circled: { upper: 'ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ', lower: 'ⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ' },
+      parenthesized: { upper: '🄐🄑🄒🄓🄔🄕🄖🄗🄘🄙🄚🄛🄜🄝🄞🄟🄠🄡🄢🄣🄤🄥🄦🄧🄨🄩', lower: '⒜⒝⒞⒟⒠⒡⒢⒣⒤⒥⒦⒧⒨⒩⒪⒫⒬⒭⒮⒯⒰⒱⒲⒳⒴⒵' },
+      smallCaps: { direct: { a:'ᴀ',b:'ʙ',c:'ᴄ',d:'ᴅ',e:'ᴇ',f:'ꜰ',g:'ɢ',h:'ʜ',i:'ɪ',j:'ᴊ',k:'ᴋ',l:'ʟ',m:'ᴍ',n:'ɴ',o:'ᴏ',p:'ᴘ',q:'ǫ',r:'ʀ',s:'ꜱ',t:'ᴛ',u:'ᴜ',v:'ᴠ',w:'ᴡ',x:'x',y:'ʏ',z:'ᴢ' } },
+      superscript: { direct: { a:'ᵃ',b:'ᵇ',c:'ᶜ',d:'ᵈ',e:'ᵉ',f:'ᶠ',g:'ᵍ',h:'ʰ',i:'ᶦ',j:'ʲ',k:'ᵏ',l:'ˡ',m:'ᵐ',n:'ⁿ',o:'ᵒ',p:'ᵖ',q:'ᑫ',r:'ʳ',s:'ˢ',t:'ᵗ',u:'ᵘ',v:'ᵛ',w:'ʷ',x:'ˣ',y:'ʸ',z:'ᶻ' } },
+      subscript: { direct: { a:'ₐ',e:'ₑ',h:'ₕ',i:'ᵢ',j:'ⱼ',k:'ₖ',l:'ₗ',m:'ₘ',n:'ₙ',o:'ₒ',p:'ₚ',r:'ᵣ',s:'ₛ',t:'ₜ',u:'ᵤ',v:'ᵥ',x:'ₓ' } },
+      squared: { direct: { a:'🄰',b:'🄱',c:'🄲',d:'🄳',e:'🄴',f:'🄵',g:'🄶',h:'🄷',i:'🄸',j:'🄹',k:'🄺',l:'🄻',m:'🄼',n:'🄽',o:'🄾',p:'🄿',q:'🅀',r:'🅁',s:'🅂',t:'🅃',u:'🅄',v:'🅅',w:'🅆',x:'🅇',y:'🅈',z:'🅉' } }
+    };
+
+    const upsideDownMap = { a:'ɐ',b:'q',c:'ɔ',d:'p',e:'ǝ',f:'ɟ',g:'ɓ',h:'ɥ',i:'ᴉ',j:'ɾ',k:'ʞ',l:'l',m:'ɯ',n:'u',o:'o',p:'d',q:'b',r:'ɹ',s:'s',t:'ʇ',u:'n',v:'ʌ',w:'ʍ',x:'x',y:'ʎ',z:'z', A:'∀',B:'𐐒',C:'Ɔ',D:'◖',E:'Ǝ',F:'Ⅎ',G:'⅁',H:'H',I:'I',J:'ſ',K:'⋊',L:'˥',M:'W',N:'N',O:'O',P:'Ԁ',Q:'Ό',R:'ᴚ',S:'S',T:'┴',U:'∩',V:'Λ',W:'M',X:'X',Y:'⅄',Z:'Z', ' ':' ' };
+
+    function mapBase(text, mapName) {
+      const style = baseMaps[mapName];
+      if (!style) return text;
+      return [...text].map(ch => {
+        const lower = ch.toLowerCase();
+        if (style.direct && style.direct[lower]) return style.direct[lower];
+        const iU = alphabetUpper.indexOf(ch);
+        if (iU !== -1 && style.upper) return [...style.upper][iU] || ch;
+        const iL = alphabetLower.indexOf(ch);
+        if (iL !== -1 && style.lower) return [...style.lower][iL] || ch;
+        return ch;
+      }).join('');
+    }
+
+    const surroundedDigits = {
+      circle: ['⓪','①','②','③','④','⑤','⑥','⑦','⑧','⑨'],
+      double: ['⓿','⓵','⓶','⓷','⓸','⓹','⓺','⓻','⓼','⓽'],
+      mathBold: ['𝟎','𝟏','𝟐','𝟑','𝟒','𝟓','𝟔','𝟕','𝟖','𝟗'],
+      mono: ['𝟶','𝟷','𝟸','𝟹','𝟺','𝟻','𝟼','𝟽','𝟾','𝟿']
+    };
+
+    function mapDigits(text, kind='circle') {
+      return [...text].map(ch => digits.includes(ch) ? surroundedDigits[kind][Number(ch)] : ch).join('');
+    }
+
+    function decorateJoin(text, sep) { return [...text].join(sep); }
+    function wrap(text, left, right) { return text ? `${left}${text}${right}` : text; }
+    function transformUpsideDown(text) { return [...text].reverse().map(ch => upsideDownMap[ch] || upsideDownMap[ch.toLowerCase()] || ch).join(''); }
+    function leet(text) { const m = { a:'4',e:'3',i:'1',l:'1',o:'0',s:'5',t:'7',g:'9',b:'8' }; return [...text].map(ch => m[ch.toLowerCase()] || ch).join(''); }
+    function alternatingCase(text) { return [...text].map((ch,i) => /[a-z]/i.test(ch) ? (i % 2 ? ch.toLowerCase() : ch.toUpperCase()) : ch).join(''); }
+    function reverseText(text) { return [...text].reverse().join(''); }
+    function removeSpaces(text) { return text.replace(/\s+/g, ''); }
+
+    const styleDefs = [
+      { name:'Plain', category:'Readable', safety:'high', fn:t=>t },
+      { name:'Bold Sans', category:'Readable', safety:'high', fn:t=>mapBase(t,'sansBold') },
+      { name:'Italic Sans', category:'Readable', safety:'high', fn:t=>mapBase(t,'sansItalic') },
+      { name:'Bold Italic Sans', category:'Readable', safety:'high', fn:t=>mapBase(t,'sansBoldItalic') },
+      { name:'Serif Bold', category:'Readable', safety:'high', fn:t=>mapBase(t,'serifBold') },
+      { name:'Serif Italic', category:'Readable', safety:'high', fn:t=>mapBase(t,'serifItalic') },
+      { name:'Serif Bold Italic', category:'Readable', safety:'high', fn:t=>mapBase(t,'serifBoldItalic') },
+      { name:'Monospace', category:'Readable', safety:'high', fn:t=>mapBase(t,'monospace') },
+      { name:'Small Caps', category:'Readable', safety:'high', fn:t=>mapBase(t,'smallCaps') },
+      { name:'Double-Struck', category:'Classic', safety:'medium', fn:t=>mapBase(t,'doubleStruck') },
+      { name:'Fullwidth', category:'Classic', safety:'medium', fn:t=>mapBase(t,'fullwidth') },
+      { name:'Circled', category:'Classic', safety:'medium', fn:t=>mapBase(t,'circled') },
+      { name:'Parenthesized', category:'Classic', safety:'medium', fn:t=>mapBase(t,'parenthesized') },
+      { name:'Superscript', category:'Classic', safety:'medium', fn:t=>mapBase(t,'superscript') },
+      { name:'Subscript', category:'Classic', safety:'medium', fn:t=>mapBase(t,'subscript') },
+      { name:'Squared', category:'Classic', safety:'medium', fn:t=>mapBase(t,'squared') },
+      { name:'Script', category:'Handwritten', safety:'medium', fn:t=>mapBase(t,'script') },
+      { name:'Bold Script', category:'Handwritten', safety:'medium', fn:t=>mapBase(t,'boldScript') },
+      { name:'Soft Signature', category:'Handwritten', safety:'medium', fn:t=>wrap(mapBase(t,'script'),'✍ ','') },
+      { name:'Royal Script', category:'Handwritten', safety:'medium', fn:t=>wrap(mapBase(t,'boldScript'),'♛ ','') },
+      { name:'Tiny Script', category:'Handwritten', safety:'medium', fn:t=>decorateJoin(mapBase(t,'script'),' ') },
+      { name:'Fraktur', category:'Gothic', safety:'low', fn:t=>mapBase(t,'fraktur') },
+      { name:'Bold Fraktur', category:'Gothic', safety:'low', fn:t=>mapBase(t,'boldFraktur') },
+      { name:'Gothic Line', category:'Gothic', safety:'low', fn:t=>decorateJoin(mapBase(t,'boldFraktur'),' • ') },
+      { name:'Gothic Wrap', category:'Gothic', safety:'low', fn:t=>wrap(mapBase(t,'fraktur'),'✦ ',' ✦') },
+      { name:'Vaporwave', category:'Decorative', safety:'medium', fn:t=>decorateJoin(mapBase(t.toUpperCase(),'fullwidth'),' ') },
+      { name:'Spaced Out', category:'Decorative', safety:'high', fn:t=>decorateJoin(t,' ') },
+      { name:'Dotted', category:'Decorative', safety:'high', fn:t=>decorateJoin(t,' · ') },
+      { name:'Dashed', category:'Decorative', safety:'high', fn:t=>decorateJoin(t,' — ') },
+      { name:'Bullets', category:'Decorative', safety:'high', fn:t=>decorateJoin(t,' • ') },
+      { name:'Slash Flow', category:'Decorative', safety:'high', fn:t=>decorateJoin(t,' / ') },
+      { name:'Chevron Flow', category:'Decorative', safety:'high', fn:t=>decorateJoin(t,' › ') },
+      { name:'Luxury Caps', category:'Luxury', safety:'high', fn:t=>decorateJoin(mapBase(t.toLowerCase(),'smallCaps'),' ') },
+      { name:'Luxury Frame', category:'Luxury', safety:'medium', fn:t=>wrap(mapBase(t,'serifBold'),'✦ ',' ✦') },
+      { name:'Gold Label', category:'Luxury', safety:'high', fn:t=>wrap(mapBase(t.toUpperCase(),'serifBold'),'','') },
+      { name:'Velvet Serif', category:'Luxury', safety:'high', fn:t=>wrap(mapBase(t,'serifItalic'),'⋆ ','') },
+      { name:'Diamond Wrap', category:'Luxury', safety:'medium', fn:t=>wrap(t,'◆ ',' ◆') },
+      { name:'Angle Frame', category:'Frames', safety:'high', fn:t=>wrap(t,'〈 ',' 〉') },
+      { name:'Square Frame', category:'Frames', safety:'high', fn:t=>wrap(t,'[ ',' ]') },
+      { name:'Curly Frame', category:'Frames', safety:'high', fn:t=>wrap(t,'{ ',' }') },
+      { name:'Minimal Quote', category:'Frames', safety:'high', fn:t=>wrap(t,'“','”') },
+      { name:'Header Frame', category:'Frames', safety:'medium', fn:t=>wrap(mapBase(t.toUpperCase(),'fullwidth'),'【 ',' 】') },
+      { name:'Mono Frame', category:'Frames', safety:'high', fn:t=>wrap(mapBase(t,'monospace'),'⌈ ',' ⌋') },
+      { name:'Outline Mono', category:'Frames', safety:'high', fn:t=>wrap(mapBase(t,'monospace'),'⟦ ',' ⟧') },
+      { name:'Sparkle Wrap', category:'Symbols', safety:'medium', fn:t=>wrap(t,'✦ ',' ✦') },
+      { name:'Star Wrap', category:'Symbols', safety:'medium', fn:t=>wrap(t,'★ ',' ★') },
+      { name:'Heart Wrap', category:'Symbols', safety:'medium', fn:t=>wrap(t,'♥ ',' ♥') },
+      { name:'Arrow Wrap', category:'Symbols', safety:'medium', fn:t=>wrap(t,'➜ ',' ➜') },
+      { name:'Wave Wrap', category:'Symbols', safety:'medium', fn:t=>wrap(t,'〜 ',' 〜') },
+      { name:'Story Banner', category:'Symbols', safety:'medium', fn:t=>wrap(mapBase(t,'doubleStruck'),'❖ ',' ❖') },
+      { name:'Caption Glow', category:'Symbols', safety:'medium', fn:t=>wrap(mapBase(t,'sansBoldItalic'),'✺ ',' ✺') },
+      { name:'Typewriter Line', category:'Social', safety:'high', fn:t=>wrap(mapBase(t,'monospace'),'— ',' —') },
+      { name:'Bio Divider', category:'Social', safety:'high', fn:t=>decorateJoin(mapBase(t.toLowerCase(),'smallCaps'),' | ') },
+      { name:'IG Clean', category:'Social', safety:'high', fn:t=>mapBase(t,'sansBold') },
+      { name:'IG Soft', category:'Social', safety:'high', fn:t=>mapBase(t,'sansItalic') },
+      { name:'FB Readable', category:'Social', safety:'high', fn:t=>mapBase(t.toLowerCase(),'smallCaps') },
+      { name:'FB Decorative', category:'Social', safety:'medium', fn:t=>mapBase(t,'script') },
+      { name:'Classic Label', category:'Social', safety:'high', fn:t=>mapBase(t.toUpperCase(),'serifBold') },
+      { name:'Leet', category:'Experimental', safety:'medium', fn:t=>leet(t) },
+      { name:'Upside Down', category:'Experimental', safety:'low', fn:t=>transformUpsideDown(t) },
+      { name:'Alternating Case', category:'Experimental', safety:'medium', fn:t=>alternatingCase(t) },
+      { name:'Reverse', category:'Experimental', safety:'high', fn:t=>reverseText(t) },
+      { name:'No Spaces', category:'Experimental', safety:'high', fn:t=>removeSpaces(t) },
+      { name:'Circled Digits', category:'Experimental', safety:'medium', fn:t=>mapDigits(t,'circle') },
+      { name:'Double Circled Digits', category:'Experimental', safety:'medium', fn:t=>mapDigits(t,'double') },
+      { name:'Bold Digits', category:'Experimental', safety:'medium', fn:t=>mapDigits(t,'mathBold') },
+      { name:'Mono Digits', category:'Experimental', safety:'high', fn:t=>mapDigits(t,'mono') },
+      { name:'Elegant Serif Italic', category:'Readable', safety:'high', fn:t=>wrap(mapBase(t,'serifItalic'),'','') },
+      { name:'Bold Wide', category:'Readable', safety:'high', fn:t=>decorateJoin(mapBase(t,'sansBold'),' ') },
+      { name:'Serif Italic Wide', category:'Readable', safety:'high', fn:t=>decorateJoin(mapBase(t,'serifItalic'),' ') },
+      { name:'Fraktur Frame', category:'Gothic', safety:'low', fn:t=>wrap(mapBase(t,'boldFraktur'),'☩ ',' ☩') },
+      { name:'Luxury Italic', category:'Luxury', safety:'high', fn:t=>wrap(mapBase(t,'serifItalic'),'✦ ',' ✦') },
+      { name:'Luxury Bold Italic', category:'Luxury', safety:'high', fn:t=>wrap(mapBase(t,'serifBoldItalic'),'✦ ',' ✦') },
+      { name:'Gold Monogram', category:'Luxury', safety:'high', fn:t=>wrap(removeSpaces(mapBase(t.toUpperCase(),'serifBold')),'','') },
+      { name:'Pearl Script', category:'Luxury', safety:'medium', fn:t=>wrap(mapBase(t,'boldScript'),'◌ ',' ◌') },
+      { name:'Diamond Frame', category:'Frames', safety:'medium', fn:t=>wrap(t,'◇ ',' ◇') },
+      { name:'Star Frame', category:'Frames', safety:'medium', fn:t=>wrap(t,'✶ ',' ✶') },
+      { name:'Arrow Line', category:'Symbols', safety:'medium', fn:t=>decorateJoin(t,' → ') },
+      { name:'Heart Divider', category:'Symbols', safety:'medium', fn:t=>decorateJoin(t,' ♥ ') },
+      { name:'Wave Divider', category:'Symbols', safety:'medium', fn:t=>decorateJoin(t,' ~ ') },
+      { name:'IG Bold Italic', category:'Social', safety:'high', fn:t=>mapBase(t,'sansBoldItalic') },
+      { name:'IG Serif Italic', category:'Social', safety:'high', fn:t=>mapBase(t,'serifItalic') },
+      { name:'IG Signature', category:'Social', safety:'medium', fn:t=>wrap(mapBase(t,'script'),'@ ','') },
+      { name:'FB Classic', category:'Social', safety:'high', fn:t=>mapBase(t,'serifBold') },
+      { name:'FB Soft Italic', category:'Social', safety:'high', fn:t=>mapBase(t,'sansItalic') },
+      { name:'Bio Accent', category:'Social', safety:'medium', fn:t=>wrap(mapBase(t,'sansBold'),'✦ ','') },
+      { name:'Alternating Bold', category:'Experimental', safety:'medium', fn:t=>alternatingCase(mapBase(t,'sansBold')) },
+      { name:'Reverse Bold', category:'Experimental', safety:'high', fn:t=>reverseText(mapBase(t,'sansBold')) },
+      { name:'No Spaces Bold', category:'Experimental', safety:'high', fn:t=>removeSpaces(mapBase(t,'sansBold')) },
+      { name:'Circled Bold', category:'Experimental', safety:'medium', fn:t=>mapBase(mapBase(t,'sansBold'),'circled') },
+      { name:'Mirror Lite', category:'Experimental', safety:'medium', fn:t=>reverseText(t).replace(/[(){}\[\]<>]/g,'') },
+      { name:'Tiny Caps Wide', category:'Experimental', safety:'high', fn:t=>decorateJoin(mapBase(t.toLowerCase(),'smallCaps'),' ') },
+      { name:'Mono Wide', category:'Experimental', safety:'high', fn:t=>decorateJoin(mapBase(t,'monospace'),' ') },
+      { name:'Bold Digits Wide', category:'Experimental', safety:'medium', fn:t=>decorateJoin(mapDigits(t,'mathBold'),' ') },
+      { name:'Circle Digits Wide', category:'Experimental', safety:'medium', fn:t=>decorateJoin(mapDigits(t,'circle'),' ') },
+    ];
+
+    const favoriteStyle = document.getElementById('favoriteStyle');
+    const input = document.getElementById('input');
+    const longInput = document.getElementById('longInput');
+    const results = document.getElementById('results');
+    const templates = document.getElementById('templates');
+    const copyAll = document.getElementById('copyAll');
+    const clearBtn = document.getElementById('clearBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    const tabs = document.getElementById('modeTabs');
+    const charCount = document.getElementById('charCount');
+    const safeScore = document.getElementById('safeScore');
+    const currentMode = document.getElementById('currentMode');
+    const styleCount = document.getElementById('styleCount');
+    const resultsCount = document.getElementById('resultsCount');
+    const searchStyles = document.getElementById('searchStyles');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const quickFilters = document.getElementById('quickFilters');
+
+    const generalFields = document.getElementById('generalFields');
+    const fbFields = document.getElementById('fbFields');
+    const igFields = document.getElementById('igFields');
+
+    const fbRole = document.getElementById('fbRole');
+    const fbTagline = document.getElementById('fbTagline');
+    const fbLink = document.getElementById('fbLink');
+    const igPrefix = document.getElementById('igPrefix');
+    const igSuffix = document.getElementById('igSuffix');
+    const igSeparator = document.getElementById('igSeparator');
+
+    let mode = 'general';
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>\"]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[m]));
+    }
+
+    function getStyle(name) {
+      return styleDefs.find(x => x.name === name) || styleDefs[0];
+    }
+
+    function transform(text, styleName) {
+      return getStyle(styleName).fn(text || '');
+    }
+
+    function selectedBaseText() {
+      return input.value.trim();
+    }
+
+    function getSafetyClass(level) {
+      return level === 'high' ? 'ok' : level === 'medium' ? 'warn' : 'low';
+    }
+
+    const categories = ['all', ...new Set(styleDefs.map(s => s.category))];
+    categories.forEach(cat => {
+      if (cat !== 'all') {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        categoryFilter.appendChild(option);
+      }
+    });
+
+    ['All', 'Readable', 'Handwritten', 'Luxury', 'Social', 'Gothic'].forEach((label, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'ghost mini';
+      btn.dataset.quick = label === 'All' ? 'all' : label;
+      btn.textContent = label;
+      if (idx === 0) btn.classList.add('active');
+      quickFilters.appendChild(btn);
+    });
+
+    styleDefs.forEach((style, i) => {
+      const opt = document.createElement('option');
+      opt.value = style.name;
+      opt.textContent = i === 1 ? `${style.name} (default)` : `${style.name} · ${style.category}`;
+      favoriteStyle.appendChild(opt);
+    });
+    favoriteStyle.value = 'Bold Sans';
+
+    function buildTemplates(styleName) {
+      const base = transform(selectedBaseText(), styleName);
+      if (!base) return [];
+      if (mode === 'fb') {
+        const role = fbRole.value.trim();
+        const tag = fbTagline.value.trim();
+        const link = fbLink.value.trim();
+        return [
+          { title: 'Clean bio', text: `${base}\n${role}\n${tag}`.trim() },
+          { title: 'Bio + contact', text: `${base} ✦\n${role}\n${link}`.trim() },
+          { title: 'Minimal intro', text: `${base}\n${tag}\n${link}`.trim() },
+          { title: 'Readable bio', text: `${selectedBaseText()}\n${role}\n${tag}`.trim() }
+        ];
+      }
+      if (mode === 'ig') {
+        const raw = selectedBaseText().toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, igSeparator.value);
+        const prefix = igPrefix.value.trim().toLowerCase();
+        const suffix = igSuffix.value.trim().toLowerCase();
+        const clean = selectedBaseText().replace(/\s+/g, ' ').trim();
+        return [
+          { title: 'Display name', text: `${base}` },
+          { title: 'Username idea 1', text: `${prefix}${igSeparator.value}${raw}`.replace(/^\.|^_/, '') },
+          { title: 'Username idea 2', text: `${raw}${igSeparator.value}${suffix}`.replace(/\.$|_$/, '') },
+          { title: 'Username idea 3', text: `${prefix}${igSeparator.value}${raw}${igSeparator.value}${suffix}`.replace(/^\.|^_/, '').replace(/\.$|_$/, '') },
+          { title: 'Readable display name', text: clean }
+        ];
+      }
+      const extra = longInput.value.trim();
+      return [
+        { title: 'Main text', text: base },
+        { title: 'Two-line version', text: extra ? `${base}\n${transform(extra, styleName)}` : base },
+        { title: 'Short signature', text: `${base} ✦` },
+        { title: 'Minimal banner', text: `✦ ${base} ✦` }
+      ];
+    }
+
+    function renderTemplates(styleName) {
+      templates.innerHTML = '';
+      buildTemplates(styleName).forEach(t => {
+        const item = document.createElement('div');
+        item.className = 'template-item';
+        item.innerHTML = `
+          <h3>${escapeHtml(t.title)}</h3>
+          <div class="template-out">${escapeHtml(t.text)}</div>
+          <div class="row"><button class="mini" data-template-copy="${encodeURIComponent(t.text)}">Copy template</button></div>
+        `;
+        templates.appendChild(item);
+      });
+    }
+
+    function getFilteredStyles() {
+      const q = searchStyles.value.trim().toLowerCase();
+      const cat = categoryFilter.value;
+      return styleDefs.filter(style => {
+        const inCategory = cat === 'all' || style.category === cat;
+        const inSearch = !q || style.name.toLowerCase().includes(q) || style.category.toLowerCase().includes(q) || style.safety.toLowerCase().includes(q);
+        return inCategory && inSearch;
+      });
+    }
+
+    function render() {
+      const value = selectedBaseText();
+      const filtered = getFilteredStyles();
+      results.innerHTML = '';
+      filtered.forEach(style => {
+        const out = transform(value, style.name);
+        const item = document.createElement('div');
+        item.className = 'style-item';
+        item.innerHTML = `
+          <div class="style-meta">
+            <h3>${escapeHtml(style.name)}</h3>
+            <div class="chips">
+              <span class="chip">${escapeHtml(style.category)}</span>
+              <span class="chip ${getSafetyClass(style.safety)}">${escapeHtml(style.safety)}</span>
+            </div>
+          </div>
+          <div class="out">${escapeHtml(out) || '&nbsp;'}</div>
+          <div class="row">
+            <button class="mini" data-copy="${encodeURIComponent(out)}">Copy</button>
+            <button class="mini" data-setfav="${escapeHtml(style.name)}">Use as selected</button>
+          </div>
+        `;
+        results.appendChild(item);
+      });
+      charCount.textContent = String(value.length);
+      safeScore.textContent = getStyle(favoriteStyle.value).safety;
+      currentMode.textContent = mode === 'general' ? 'General' : mode === 'fb' ? 'Facebook Bio' : 'Instagram Names';
+      styleCount.textContent = String(filtered.length);
+      resultsCount.textContent = `${filtered.length} style${filtered.length === 1 ? '' : 's'} shown`;
+      renderTemplates(favoriteStyle.value);
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        alert('Copied');
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        alert('Copied');
+      }
+    }
+
+    results.addEventListener('click', async (e) => {
+      const copy = e.target.getAttribute('data-copy');
+      const setfav = e.target.getAttribute('data-setfav');
+      if (copy) await copyText(decodeURIComponent(copy));
+      if (setfav) {
+        favoriteStyle.value = setfav;
+        render();
+      }
+    });
+
+    templates.addEventListener('click', async (e) => {
+      const copy = e.target.getAttribute('data-template-copy');
+      if (copy) await copyText(decodeURIComponent(copy));
+    });
+
+    copyAll.addEventListener('click', () => copyText(transform(selectedBaseText(), favoriteStyle.value)));
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      longInput.value = '';
+      searchStyles.value = '';
+      categoryFilter.value = 'all';
+      render();
+    });
+
+    [input, longInput, fbRole, fbTagline, fbLink, igPrefix, igSuffix, igSeparator, favoriteStyle, searchStyles, categoryFilter].forEach(el => {
+      el.addEventListener('input', render);
+      el.addEventListener('change', render);
+    });
+
+    quickFilters.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-quick]');
+      if (!btn) return;
+      categoryFilter.value = btn.dataset.quick;
+      [...quickFilters.querySelectorAll('button')].forEach(x => x.classList.toggle('active', x === btn));
+      render();
+    });
+
+    shareBtn.addEventListener('click', async () => {
+      const text = buildTemplates(favoriteStyle.value)[0]?.text || transform(selectedBaseText(), favoriteStyle.value);
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: 'Luxury Stylish Text', text });
+          return;
+        } catch {}
+      }
+      copyText(text);
+    });
+
+    tabs.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-mode]');
+      if (!btn) return;
+      mode = btn.dataset.mode;
+      [...tabs.querySelectorAll('.tab')].forEach(x => x.classList.toggle('active', x === btn));
+      generalFields.classList.toggle('hidden', mode !== 'general');
+      fbFields.classList.toggle('hidden', mode !== 'fb');
+      igFields.classList.toggle('hidden', mode !== 'ig');
+      render();
+    });
+
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.hidden = false;
+    });
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBtn.hidden = true;
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
+    }
+
+    render();
+  </script>
+</body>
+</html>
